@@ -16,7 +16,7 @@ const path = "files"
 
 func main() {
 
-	info := Run()
+	info := Run(path)
 
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
@@ -53,7 +53,7 @@ type Info struct {
 	Mappings map[string]interface{}
 }
 
-func Run() *Info {
+func Run(path string) *Info {
 	info := &Info{
 		Mappings: make(map[string]interface{}),
 	}
