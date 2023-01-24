@@ -46,7 +46,7 @@ func TestGetValue(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 
-			val, err := info.Get(test.key)
+			val, err := info.get(test.key)
 
 			assert.DeepEqual(t, test.value, val)
 			assert.Equal(t, test.shouldError, err != nil)

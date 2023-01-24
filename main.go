@@ -25,7 +25,7 @@ func main() {
 
 		input := scanner.Text()
 		if len(input) != 0 {
-			val, err := info.Get(input)
+			val, err := info.get(input)
 			if err != nil {
 				fmt.Println(err)
 
@@ -43,10 +43,6 @@ func main() {
 
 }
 
-type Config interface {
-	Get(k string) (interface{}, error)
-}
-
 // Info describes result of merge operation
 type Info struct {
 	Errors   []error
@@ -57,6 +53,8 @@ func Run(path string) *Info {
 	info := &Info{
 		Mappings: make(map[string]interface{}),
 	}
+
+	var fileContent *os.File
 
 	f, err := os.Open(path)
 	if err != nil {
@@ -70,19 +68,17 @@ func Run(path string) *Info {
 
 	for _, v := range files {
 
-		fileContent, err := os.Open(path + "/" + v.Name())
+		fileContent, err = os.Open(path + "/" + v.Name())
 
 		if err != nil {
 			info.Errors = append(info.Errors, err)
 		}
 
-		defer fileContent.Close()
-
 		byteResult, _ := io.ReadAll(fileContent)
 
 		var data interface{}
 
-		err = unmarshalJSON([]byte(byteResult), &data)
+		err = unmarshalJSON(byteResult, &data)
 
 		if err != nil {
 			info.Errors = append(info.Errors, err)
@@ -91,6 +87,8 @@ func Run(path string) *Info {
 		info.mergeConfig(data, nil)
 
 	}
+
+	defer fileContent.Close()
 
 	return info
 
@@ -153,7 +151,7 @@ func printVal(val interface{}) {
 	fmt.Println(string(jsonStr))
 }
 
-func (info *Info) Get(k string) (interface{}, error) {
+func (info *Info) get(k string) (interface{}, error) {
 
 	if len(strings.TrimSpace(k)) == 0 {
 		return nil, errors.New("empty key")
